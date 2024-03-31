@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import auth from "./firebase.config";
 import { useState } from "react";
 import { FaEye } from "react-icons/fa";
@@ -16,10 +16,11 @@ const Register = () => {
         setLogInSuccess('');
 
         e.preventDefault();
+        const name=e.target.name.value;
         const email = e.target.email.value;
         const password = e.target.password.value;
         const accepted = e.target.trams.checked;
-        console.log(accepted);
+        console.log(name);
 
         if (password.length < 6) {
             setLogInError('Password should be at least 6 characters')
@@ -40,6 +41,16 @@ const Register = () => {
                 const user = userCredential.user;
                 setLogInSuccess('Create User Successfully')
                 console.log(user);
+
+                // account name  profile upodate 
+                updateProfile(auth.currentUser, {
+                    displayName: name , photoURL: "https://example.com/jane-q-user/profile.jpg"
+                  }).then(() => {
+                    console.log(" Profile updated!");
+                    
+                  }).catch((error) => {
+                    setLogInError('Nam a  kuno  somossa ace ',error)
+                  });
 
                 // email verification 
 
@@ -69,6 +80,8 @@ const Register = () => {
 
 
                 <form onSubmit={handelRegister} className="bg-gray-200 rounded-lg p-5 m-auto w-6/12 space-y-2 flex flex-col justify-center ">
+                    <input className="p-4 rounded-lg" type="text" name="name" id="" placeholder=" Your Name" required />
+                    <br />
                     <input className="p-4 rounded-lg" type="email" name="email" id="" placeholder="Enter Your Email.." required />
                     <br />
                     <div className="flex relative">
