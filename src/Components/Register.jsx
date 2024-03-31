@@ -1,13 +1,14 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "./firebase.config";
 import { useState } from "react";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Register = () => {
-    const [logInError,setLogInError]=useState('');
-    const [logInSuccess,setLogInSuccess]=useState('');
-    const [showPass,setShowPass]=useState(false);
+    const [logInError, setLogInError] = useState('');
+    const [logInSuccess, setLogInSuccess] = useState('');
+    const [showPass, setShowPass] = useState(false);
 
 
     const handelRegister = (e) => {
@@ -20,27 +21,35 @@ const Register = () => {
         const accepted = e.target.trams.checked;
         console.log(accepted);
 
-        if(password.length<6){
+        if (password.length < 6) {
             setLogInError('Password should be at least 6 characters')
             return;
-       }
-       else if(!/[A-Z]/.test(password)){
-        setLogInError('Password should have  at on upper case letter ')
-        return;
         }
-       else if(!accepted){
-        setLogInError('Please accept Our Trams ')
-        return;
+        else if (!/[A-Z]/.test(password)) {
+            setLogInError('Password should have  at on upper case letter ')
+            return;
+        }
+        else if (!accepted) {
+            setLogInError('Please accept Our Trams ')
+            return;
         }
 
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-            
+
                 const user = userCredential.user;
-                setLogInSuccess('Create User Successfully')            
+                setLogInSuccess('Create User Successfully')
                 console.log(user);
+
+                // email verification 
+
+                sendEmailVerification(auth.currentUser)
+                    .then(() => {
+                        alert('Please check your email and  verify your Account')
+                    });
+
             })
-            .catch((error) => {              
+            .catch((error) => {
                 const errorMessage = error.message;
                 setLogInError(errorMessage)
                 console.log(errorMessage);
@@ -63,8 +72,8 @@ const Register = () => {
                     <input className="p-4 rounded-lg" type="email" name="email" id="" placeholder="Enter Your Email.." required />
                     <br />
                     <div className="flex relative">
-                    <input className="p-4 rounded-lg w-full" type={showPass?'text':"password"} name="password" id="" placeholder="Password" required/>
-                    <p onClick={()=>{setShowPass(!showPass)}} className="absolute top-1/3 right-3" >{showPass? <FaEye/>:<FaEyeSlash/>}</p>
+                        <input className="p-4 rounded-lg w-full" type={showPass ? 'text' : "password"} name="password" id="" placeholder="Password" required />
+                        <p onClick={() => { setShowPass(!showPass) }} className="absolute top-1/3 right-3" >{showPass ? <FaEye /> : <FaEyeSlash />}</p>
                     </div>
                     <br />
                     <div className=" flex items-center gap-3 ml-3 pb-2">
@@ -73,12 +82,14 @@ const Register = () => {
                     </div>
                     <input className="btn btn-secondary" type="submit" value="Register" />
                     {
-                        logInError&& <p className="text-red-600">{logInError}</p>
+                        logInError && <p className="text-red-600">{logInError}</p>
                     }
                     {
-                        logInSuccess&& <p className="text-green-600">{logInSuccess}</p>
+                        logInSuccess && <p className="text-green-600">{logInSuccess}</p>
                     }
-
+                    <div className="flex justify-between">
+                        <Link to={'/login'} className="text-green-900  btn btn-link font-semibold" >Already Have An Account</Link>
+                    </div>
                 </form>
             </div>
 
